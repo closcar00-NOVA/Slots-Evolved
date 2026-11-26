@@ -19,6 +19,7 @@
       --text: #f1f5f9;
       --muted: #8492a6;
       --border: rgba(255, 255, 255, 0.08);
+      --cell-h: 118px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -32,7 +33,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 12px;
       overflow-x: hidden;
     }
 
@@ -43,7 +44,7 @@
       background: var(--panel);
       border: 1px solid rgba(0, 240, 255, 0.3);
       border-radius: 16px;
-      padding: 18px 20px;
+      padding: 16px 18px;
       box-shadow: 0 0 35px rgba(0, 240, 255, 0.08), inset 0 0 20px rgba(0, 0, 0, 0.6);
       position: relative;
       transition: transform 0.08s ease;
@@ -65,7 +66,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
       gap: 10px;
     }
@@ -110,15 +111,15 @@
     .jackpots {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
     .jp-box {
       background: rgba(7, 10, 18, 0.75);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 7px 8px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -152,12 +153,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 14px;
+      gap: 14px;
+      margin-bottom: 12px;
       background: rgba(7, 10, 18, 0.6);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 8px 14px;
+      padding: 7px 12px;
     }
 
     .vault-wrap {
@@ -204,86 +205,96 @@
       white-space: nowrap;
     }
 
-    /* 5x3 Reel Grid */
+    /* 5x3 Traditional Spinning Reel Frame (Tight Padding) */
     .reel-frame {
-      background: #060911;
-      border: 1px solid rgba(0, 240, 255, 0.25);
+      background: #050810;
+      border: 1px solid rgba(0, 240, 255, 0.28);
       border-radius: 12px;
-      padding: 12px;
+      padding: 5px;
       position: relative;
       overflow: hidden;
+      box-shadow: inset 0 14px 20px -10px rgba(0, 0, 0, 0.9), inset 0 -14px 20px -10px rgba(0, 0, 0, 0.9);
     }
 
     .reel-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      gap: 4px;
     }
 
+    /* Clipped Viewport per Reel */
     .reel-col {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 4px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.02);
+      height: calc(var(--cell-h) * 3);
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.015);
       border: 1px solid transparent;
+      position: relative;
       transition: border-color 0.25s, box-shadow 0.25s;
     }
 
     .reel-col.anticipate {
       border-color: var(--magenta);
-      box-shadow: 0 0 18px rgba(255, 0, 127, 0.45), inset 0 0 14px rgba(255, 0, 127, 0.2);
-      animation: pulseCol 0.5s infinite alternate;
+      box-shadow: 0 0 18px rgba(255, 0, 127, 0.5), inset 0 0 14px rgba(255, 0, 127, 0.22);
+      animation: pulseCol 0.45s infinite alternate;
     }
 
     @keyframes pulseCol {
       from { box-shadow: 0 0 10px rgba(255, 0, 127, 0.3); }
-      to   { box-shadow: 0 0 24px rgba(255, 0, 127, 0.75); }
+      to   { box-shadow: 0 0 24px rgba(255, 0, 127, 0.8); }
     }
 
+    /* Scrolling Strip inside each Reel */
+    .reel-strip {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    .reel-strip.blur-motion .sym-icon {
+      filter: blur(1.4px);
+    }
+
+    /* Tight-Padded Symbol Tile */
     .cell {
-      aspect-ratio: 1 / 0.88;
+      height: var(--cell-h);
+      padding: 2px;
+      flex-shrink: 0;
+    }
+
+    .cell-inner {
+      width: 100%;
+      height: 100%;
       background: var(--panel-light);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 7px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+      overflow: hidden;
+      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
     }
 
-    .cell.spinning {
-      opacity: 0.55;
-      filter: blur(1.5px);
-      transform: scale(0.96);
-    }
-
-    .cell.win {
+    .cell.win .cell-inner {
       border-color: var(--gold);
-      box-shadow: 0 0 18px rgba(255, 209, 0, 0.55), inset 0 0 12px rgba(255, 209, 0, 0.2);
-      transform: scale(1.04);
+      box-shadow: 0 0 16px rgba(255, 209, 0, 0.6), inset 0 0 12px rgba(255, 209, 0, 0.25);
+      transform: scale(1.03);
       z-index: 2;
     }
 
-    .cell.wild-expanded {
+    .cell.wild-expanded .cell-inner {
       border-color: var(--cyan);
-      background: linear-gradient(180deg, rgba(0,240,255,0.22), rgba(0,240,255,0.06));
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      background: linear-gradient(180deg, rgba(0,240,255,0.24), rgba(0,240,255,0.06));
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
     }
 
-    .cell.orb-locked {
-      border-color: var(--magenta);
-      background: radial-gradient(circle, rgba(255,0,127,0.3), rgba(14,20,36,0.95));
-      box-shadow: 0 0 16px rgba(255, 0, 127, 0.5);
-    }
-
+    /* 2x+ Larger Symbol Icon */
     .sym-icon {
-      font-size: 2rem;
-      line-height: 1;
-      margin-bottom: 4px;
+      font-size: 4.2rem;
+      line-height: 0.95;
+      transition: filter 0.15s;
     }
 
     .sym-tag {
@@ -292,6 +303,7 @@
       letter-spacing: 1px;
       text-transform: uppercase;
       color: var(--muted);
+      margin-top: 2px;
     }
 
     .cell[data-sym="WILD"] .sym-tag { color: var(--cyan); }
@@ -301,8 +313,8 @@
 
     /* Win Announcement Strip */
     .win-banner {
-      min-height: 36px;
-      margin: 12px 0;
+      min-height: 34px;
+      margin: 10px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -318,7 +330,7 @@
     .controls {
       display: grid;
       grid-template-columns: 1.2fr 1.2fr 1fr 1.1fr;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -326,7 +338,7 @@
       background: rgba(7, 10, 18, 0.75);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px 14px;
+      padding: 9px 12px;
     }
 
     .stat-label {
@@ -394,7 +406,7 @@
     }
 
     .spin-btn {
-      height: 56px;
+      height: 54px;
       border-radius: 12px;
       border: 1px solid var(--cyan);
       background: linear-gradient(135deg, rgba(0, 240, 255, 0.22), rgba(255, 0, 127, 0.22));
@@ -420,7 +432,7 @@
 
     /* Dev / Feature Test Bar */
     .dev-bar {
-      margin-top: 14px;
+      margin-top: 12px;
       padding-top: 10px;
       border-top: 1px solid var(--border);
       display: flex;
@@ -561,9 +573,11 @@
     }
 
     @media (max-width: 720px) {
+      :root { --cell-h: 88px; }
       .jackpots { grid-template-columns: repeat(2, 1fr); }
       .controls { grid-template-columns: 1fr 1fr; }
-      .sym-icon { font-size: 1.45rem; }
+      .sym-icon { font-size: 3rem; }
+      .sym-tag { font-size: 0.54rem; }
     }
   </style>
 </head>
@@ -574,7 +588,7 @@
     <div class="top-bar">
       <div class="brand">NEON<span>PULSE</span></div>
       <div class="top-actions">
-        <button class="pill-btn" id="btnSound">SOUND: ON</button>
+        <button class="pill-btn active" id="btnSound">SOUND: ON</button>
         <button class="pill-btn" id="btnTurbo">TURBO: OFF</button>
         <button class="pill-btn" id="btnAuto">AUTO: OFF</button>
       </div>
@@ -610,7 +624,7 @@
       <div class="cascade-badge" id="cascadeBadge">CASCADE 1X</div>
     </div>
 
-    <!-- 5x3 Reel Grid -->
+    <!-- 5x3 Traditional Spinning Reel Grid -->
     <div class="reel-frame">
       <div class="reel-grid" id="reelGrid"></div>
     </div>
@@ -717,8 +731,8 @@
       return {
         toggle: () => { enabled = !enabled; return enabled; },
         tick: () => tone(520, 0.04, 'triangle', 0.05),
-        slam: () => tone(130, 0.12, 'sawtooth', 0.1, 60),
-        anticipation: () => tone(240, 0.45, 'sine', 0.09, 520),
+        slam: () => tone(120, 0.13, 'sawtooth', 0.11, 55),
+        anticipation: () => tone(240, 0.55, 'sine', 0.09, 540),
         win: (big = false) => {
           const notes = big ? [523, 659, 784, 1046, 1318] : [440, 554, 659];
           notes.forEach((n, i) => setTimeout(() => tone(n, 0.18, 'triangle', 0.1), i * 85));
@@ -754,6 +768,7 @@
     const $ = id => document.getElementById(id);
     const totalBet = () => state.baseBet * state.tier;
     const fmt = n => '$' + Math.floor(n).toLocaleString();
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
 
     function saveState() {
       localStorage.setItem('np_bankroll', Math.floor(state.bankroll));
@@ -772,7 +787,7 @@
       saveState();
     }
 
-    // ==================== REEL RENDERING ====================
+    // ==================== REEL RENDERING & VERTICAL SPIN ENGINE ====================
     function pickSymbol() {
       const totalW = SYMBOLS.reduce((a, s) => a + s.weight, 0);
       let r = Math.random() * totalW;
@@ -787,6 +802,23 @@
       return { ...SYMBOLS[0] };
     }
 
+    function createCellElement(sym, id = '', extraClass = '') {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (extraClass ? ' ' + extraClass : '');
+      if (id) cell.id = id;
+      cell.dataset.sym = sym.id;
+      const tag = sym.id === 'ORB' ? fmt(sym.orbVal || totalBet() * 2) : sym.label;
+      cell.innerHTML = `<div class="cell-inner"><div class="sym-icon">${sym.icon}</div><div class="sym-tag">${tag}</div></div>`;
+      return cell;
+    }
+
+    function renderCell(cell, sym, extraClass = '') {
+      cell.className = 'cell' + (extraClass ? ' ' + extraClass : '');
+      cell.dataset.sym = sym.id;
+      const tag = sym.id === 'ORB' ? fmt(sym.orbVal || totalBet() * 2) : sym.label;
+      cell.innerHTML = `<div class="cell-inner"><div class="sym-icon">${sym.icon}</div><div class="sym-tag">${tag}</div></div>`;
+    }
+
     function buildGridDOM() {
       const container = $('reelGrid');
       container.innerHTML = '';
@@ -794,29 +826,76 @@
         const col = document.createElement('div');
         col.className = 'reel-col';
         col.id = `col-${c}`;
+
+        const strip = document.createElement('div');
+        strip.className = 'reel-strip';
+        strip.id = `strip-${c}`;
+
         for (let r = 0; r < 3; r++) {
           const sym = pickSymbol();
           state.grid[c][r] = sym;
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          cell.id = `cell-${c}-${r}`;
-          renderCell(cell, sym);
-          col.appendChild(cell);
+          strip.appendChild(createCellElement(sym, `cell-${c}-${r}`));
         }
+        col.appendChild(strip);
         container.appendChild(col);
       }
     }
 
-    function renderCell(cell, sym, extraClass = '') {
-      cell.className = 'cell' + (extraClass ? ' ' + extraClass : '');
-      cell.dataset.sym = sym.id;
-      const tag = sym.id === 'ORB' ? fmt(sym.orbVal || totalBet() * 2) : sym.label;
-      cell.innerHTML = `<div class="sym-icon">${sym.icon}</div><div class="sym-tag">${tag}</div>`;
+    // Animates a single reel strip vertically from current symbols down to target symbols
+    function spinColumn(c, targetSyms, durationMs, fillerCount, isTease) {
+      return new Promise(resolve => {
+        const colEl = $(`col-${c}`);
+        const strip = $(`strip-${c}`);
+        const cellH = colEl.clientHeight / 3;
+        const currentSyms = state.grid[c];
+
+        // Build vertical strip: [Target 3] + [Random Filler] + [Current 3]
+        const fullList = [
+          ...targetSyms,
+          ...Array.from({ length: fillerCount }, () => pickSymbol()),
+          ...currentSyms
+        ];
+
+        strip.style.transition = 'none';
+        strip.innerHTML = '';
+        fullList.forEach(sym => strip.appendChild(createCellElement(sym)));
+
+        // Start positioned at the bottom so currentSyms remain seamlessly in view
+        const startOffset = (fullList.length - 3) * cellH;
+        strip.style.transform = `translateY(-${startOffset}px)`;
+        strip.classList.add('blur-motion');
+
+        // Force browser reflow
+        void strip.offsetHeight;
+
+        if (isTease) {
+          colEl.classList.add('anticipate');
+          AudioEngine.anticipation();
+        }
+
+        // Scroll downward to translateY(0) with a classic mechanical overshoot settle
+        strip.style.transition = `transform ${durationMs}ms cubic-bezier(0.14, 0.85, 0.24, 1.03)`;
+        strip.style.transform = 'translateY(0px)';
+
+        setTimeout(() => {
+          strip.classList.remove('blur-motion');
+          colEl.classList.remove('anticipate');
+          AudioEngine.slam();
+
+          // Replace strip with only the 3 final cells for clean cascades & highlights
+          strip.style.transition = 'none';
+          strip.style.transform = 'translateY(0px)';
+          strip.innerHTML = '';
+          for (let r = 0; r < 3; r++) {
+            state.grid[c][r] = targetSyms[r];
+            strip.appendChild(createCellElement(targetSyms[r], `cell-${c}-${r}`));
+          }
+          resolve();
+        }, durationMs);
+      });
     }
 
     // ==================== CORE SPIN + CASCADES ====================
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-
     async function spin() {
       if (state.spinning) return;
       const bet = totalBet();
@@ -839,28 +918,23 @@
 
       // Generate target grid
       const nextGrid = Array.from({ length: 5 }, () => Array.from({ length: 3 }, () => pickSymbol()));
-      let scatterCount = 0;
 
-      // Animate columns sequentially with anticipation tease
+      // Launch all 5 reels simultaneously with staggered stop durations
+      let scatterSoFar = 0;
+      const spinPromises = [];
       for (let c = 0; c < 5; c++) {
-        const colEl = $(`col-${c}`);
-        const isTease = scatterCount >= 2 && c >= 2;
-        if (isTease) {
-          colEl.classList.add('anticipate');
-          AudioEngine.anticipation();
-        }
+        const isTease = scatterSoFar >= 2 && c >= 2;
+        const baseDur = state.turbo ? 420 : 850;
+        const stagger = state.turbo ? 110 : 240;
+        const teaseExtra = isTease ? (state.turbo ? 250 : 650) : 0;
+        const duration = baseDur + c * stagger + teaseExtra;
+        const fillerCount = (state.turbo ? 10 : 16) + c * 4 + (isTease ? 12 : 0);
 
-        for (let r = 0; r < 3; r++) $(`cell-${c}-${r}`).classList.add('spinning');
-        await sleep(state.turbo ? 60 : (isTease ? 420 : 120));
-
-        for (let r = 0; r < 3; r++) {
-          state.grid[c][r] = nextGrid[c][r];
-          renderCell($(`cell-${c}-${r}`), nextGrid[c][r]);
-          if (nextGrid[c][r].id === 'WHEEL') scatterCount++;
-        }
-        colEl.classList.remove('anticipate');
-        AudioEngine.slam();
+        spinPromises.push(spinColumn(c, nextGrid[c], duration, fillerCount, isTease));
+        scatterSoFar += nextGrid[c].filter(s => s.id === 'WHEEL').length;
       }
+
+      await Promise.all(spinPromises);
 
       // 1. Mystery Symbol Reveal
       const mystCells = [];
@@ -869,9 +943,9 @@
           if (state.grid[c][r].id === 'MYST') mystCells.push([c, r]);
 
       if (mystCells.length > 0) {
-        const revealSym = SYMBOLS[Math.floor(Math.random() * 4)]; // High-pay reveal
+        const revealSym = SYMBOLS[Math.floor(Math.random() * 4)];
         $('winBanner').textContent = `MYSTERY REVEAL → ${revealSym.label}!`;
-        await sleep(320);
+        await sleep(300);
         mystCells.forEach(([c, r]) => {
           state.grid[c][r] = { ...revealSym };
           renderCell($(`cell-${c}-${r}`), state.grid[c][r], 'win');
@@ -879,7 +953,7 @@
         AudioEngine.tick();
       }
 
-      // 2. Expanding Wilds (if a Wild lands on col 1, 2, or 3, expand column)
+      // 2. Expanding Wilds (cols 1, 2, or 3)
       for (let c = 1; c <= 3; c++) {
         if (state.grid[c].some(s => s.id === 'WILD')) {
           for (let r = 0; r < 3; r++) {
@@ -908,7 +982,6 @@
 
         await sleep(state.turbo ? 300 : 620);
 
-        // Drop new symbols into winning slots
         winCoords.forEach(([c, r]) => {
           const fresh = pickSymbol();
           state.grid[c][r] = fresh;
@@ -1030,7 +1103,6 @@
           ctx.lineWidth = active ? 2 : 1;
           ctx.stroke();
 
-          // Label
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(start + arc / 2);
@@ -1042,7 +1114,6 @@
         }
       });
 
-      // Center Hub
       ctx.beginPath();
       ctx.arc(cx, cy, 20, 0, Math.PI * 2);
       ctx.fillStyle = '#070a12';
@@ -1071,7 +1142,6 @@
       const segCount = ring.segs.length;
       const winIdx = Math.floor(Math.random() * segCount);
       const segArc = (Math.PI * 2) / segCount;
-      // Target angle so winIdx lands at top pointer (-PI/2)
       const targetAngle = (Math.PI * 2 * 5) - (winIdx * segArc + segArc / 2);
       const startAngle = wheelAngles[wheelTierIdx];
       const duration = 2600;
@@ -1120,7 +1190,6 @@
     function openHoldModal() {
       hsRespins = 3;
       hsBoard = Array(15).fill(0);
-      // Seed 6 initial orbs
       for (let i = 0; i < 6; i++) {
         let idx;
         do { idx = Math.floor(Math.random() * 15); } while (hsBoard[idx] > 0);
