@@ -285,11 +285,11 @@
       will-change: transform;
     }
 
-    .reel-strip.blur-motion .sym-icon {
+    .reel-strip.blur-motion .sym-svg-wrap {
       filter: blur(1.4px);
     }
 
-    /* Tight-Padded Symbol Tile with Crisp White Separation Border */
+    /* Tight-Padded Symbol Tile with Crisp White Border & Recessed Depth */
     .cell {
       height: var(--cell-h);
       padding: 2px;
@@ -299,9 +299,11 @@
     .cell-inner {
       width: 100%;
       height: 100%;
-      background: var(--panel-light);
+      background: radial-gradient(circle at 50% 42%, #19243d 0%, #0d1424 72%, #090e1a 100%);
       border: 1px solid rgba(255, 255, 255, 0.22);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -8px 14px rgba(0, 0, 0, 0.45);
       border-radius: 7px;
       display: flex;
       flex-direction: column;
@@ -314,7 +316,7 @@
 
     .cell.win .cell-inner {
       border-color: var(--gold);
-      box-shadow: 0 0 16px rgba(255, 209, 0, 0.6), inset 0 0 12px rgba(255, 209, 0, 0.25);
+      box-shadow: 0 0 16px rgba(255, 209, 0, 0.6), inset 0 0 14px rgba(255, 209, 0, 0.25);
       transform: scale(1.03);
       z-index: 2;
     }
@@ -322,41 +324,57 @@
     .cell.wild-expanded .cell-inner {
       border-color: var(--cyan);
       background: linear-gradient(180deg, rgba(0,240,255,0.24), rgba(0,240,255,0.06));
-      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
     }
 
-    /* 2x+ Larger Symbol Icon */
-    .sym-icon {
-      font-size: 4.2rem;
-      line-height: 0.95;
-      transition: filter 0.15s;
+    /* Custom Neon Wireframe SVG Container with Elevated Depth Shadow */
+    .sym-svg-wrap {
+      width: 78px;
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, filter 0.2s;
     }
 
-    /* Neon Royal Typography (J, Q, K, A) */
-    .sym-icon.royal-icon {
-      font-size: 3.7rem;
-      font-weight: 900;
-      letter-spacing: -1px;
-      line-height: 1;
+    .sym-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
     }
-    .cell[data-sym="ACE"] .royal-icon,   .pt-royal.ACE   { color: #ff4d8d; text-shadow: 0 0 14px rgba(255, 77, 141, 0.55); }
-    .cell[data-sym="KING"] .royal-icon,  .pt-royal.KING  { color: #ffd100; text-shadow: 0 0 14px rgba(255, 209, 0, 0.5); }
-    .cell[data-sym="QUEEN"] .royal-icon, .pt-royal.QUEEN { color: #c084fc; text-shadow: 0 0 14px rgba(192, 132, 252, 0.5); }
-    .cell[data-sym="JACK"] .royal-icon,  .pt-royal.JACK  { color: #38bdf8; text-shadow: 0 0 14px rgba(56, 189, 248, 0.5); }
+
+    /* Dual-Layer Depth: Dark Contact Shadow + Color-Matched Neon Bloom */
+    .cell[data-sym="SEVEN"] .sym-svg   { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 7px rgba(255, 209, 0, 0.7)); }
+    .cell[data-sym="DIAMOND"] .sym-svg { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 7px rgba(0, 240, 255, 0.7)); }
+    .cell[data-sym="BOLT"] .sym-svg    { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 7px rgba(255, 215, 0, 0.65)); }
+    .cell[data-sym="CHERRY"] .sym-svg  { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 7px rgba(255, 0, 127, 0.7)); }
+    .cell[data-sym="BAR"] .sym-svg     { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 7px rgba(168, 85, 247, 0.7)); }
+    .cell[data-sym="ACE"] .sym-svg     { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(255, 77, 141, 0.65)); }
+    .cell[data-sym="KING"] .sym-svg    { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(255, 209, 0, 0.6)); }
+    .cell[data-sym="QUEEN"] .sym-svg   { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(192, 132, 252, 0.65)); }
+    .cell[data-sym="JACK"] .sym-svg    { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(56, 189, 248, 0.65)); }
+    .cell[data-sym="WILD"] .sym-svg    { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 9px rgba(0, 240, 255, 0.85)); }
+    .cell[data-sym="MYST"] .sym-svg    { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 8px rgba(0, 255, 136, 0.75)); }
+    .cell[data-sym="WHEEL"] .sym-svg   { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 8px rgba(255, 209, 0, 0.8)); }
+    .cell[data-sym="ORB"] .sym-svg     { filter: drop-shadow(0 5px 4px rgba(0,0,0,0.85)) drop-shadow(0 0 9px rgba(255, 0, 127, 0.85)); }
+
+    .cell.win .sym-svg-wrap {
+      transform: scale(1.06);
+    }
 
     .sym-tag {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 800;
       letter-spacing: 1px;
       text-transform: uppercase;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
-    .cell[data-sym="WILD"] .sym-tag { color: var(--cyan); }
+    .cell[data-sym="WILD"] .sym-tag  { color: var(--cyan); }
     .cell[data-sym="WHEEL"] .sym-tag { color: var(--gold); }
-    .cell[data-sym="ORB"] .sym-tag { color: var(--magenta); font-size: 0.72rem; }
-    .cell[data-sym="MYST"] .sym-tag { color: var(--green); }
+    .cell[data-sym="ORB"] .sym-tag   { color: var(--magenta); font-size: 0.7rem; }
+    .cell[data-sym="MYST"] .sym-tag  { color: var(--green); }
 
     /* Win Announcement Strip */
     .win-banner {
@@ -495,7 +513,7 @@
 
     .dev-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    /* Modals (3-Tier Wheel, Hold & Spin, Pick-Me, Paytable) */
+    /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -581,17 +599,19 @@
       background: rgba(7, 10, 18, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 10px;
-      padding: 10px;
+      padding: 8px 10px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .pt-icon {
-      font-size: 2rem;
-      min-width: 38px;
-      text-align: center;
-      font-weight: 900;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .pt-info { flex: 1; font-size: 0.72rem; line-height: 1.45; }
@@ -703,23 +723,25 @@
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
+      gap: 2px;
     }
 
     .hs-cell.filled {
       border-color: var(--magenta);
-      background: radial-gradient(circle, rgba(255,0,127,0.35), rgba(14,20,36,0.95));
+      background: radial-gradient(circle, rgba(255,0,127,0.32), rgba(14,20,36,0.95));
       color: var(--gold);
       box-shadow: 0 0 12px rgba(255, 0, 127, 0.45);
     }
+
+    .hs-orb-icon { width: 34px; height: 34px; }
 
     @media (max-width: 720px) {
       :root { --cell-h: 88px; }
       .jackpots { grid-template-columns: repeat(2, 1fr); }
       .controls { grid-template-columns: 1fr 1fr; }
-      .sym-icon { font-size: 3rem; }
-      .sym-icon.royal-icon { font-size: 2.7rem; }
-      .sym-tag { font-size: 0.54rem; }
+      .sym-svg-wrap { width: 58px; height: 58px; }
+      .sym-tag { font-size: 0.52rem; }
       .pt-grid { grid-template-columns: repeat(2, 1fr); }
       .pt-features { grid-template-columns: 1fr; }
     }
@@ -835,19 +857,19 @@
       <div class="pt-section-title">Special Symbols & Bonus Features</div>
       <div class="pt-features">
         <div class="pt-feat">
-          <strong>💠 EXPANDING WILD</strong>
+          <strong>EXPANDING WILD</strong>
           Substitutes for all paying symbols. Landing on Reel 2 or 3 expands to fill the entire reel for that cascade.
         </div>
         <div class="pt-feat">
-          <strong>❓ MYSTERY SYMBOL</strong>
+          <strong>MYSTERY SYMBOL</strong>
           All Mystery icons on screen flip simultaneously into the same paying symbol before wins are evaluated.
         </div>
         <div class="pt-feat">
-          <strong>🎡 3-TIER NEON WHEEL</strong>
+          <strong>3-TIER NEON WHEEL</strong>
           Land 3+ Wheel symbols anywhere to spin the concentric 3-ring wheel. Hit LEVEL UP to advance toward the Grand Jackpot.
         </div>
         <div class="pt-feat">
-          <strong>🟣 CASH LINK (HOLD & SPIN)</strong>
+          <strong>CASH LINK (HOLD & SPIN)</strong>
           Land 4+ Neon Orbs anywhere to lock them for 3 respins. Every new orb resets respins to 3; filling all 15 awards the Grand Jackpot.
         </div>
       </div>
@@ -894,6 +916,93 @@
   </div>
 
   <script>
+    // ==================== OPTION 1: SLIMLINE NEON WIREFRAME SVGs + DEPTH ====================
+    const SVG_ICONS = {
+      SEVEN: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <path d="M18 16 H62 L36 66 H24 L47 26 H18 Z" fill="rgba(255,209,0,0.08)" stroke="#ffd100" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M22 20 H56 L33 63" stroke="#fff7cc" stroke-width="1" stroke-linecap="round" opacity="0.85"/>
+          <path d="M18 16 H62" stroke="#ff007f" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>`,
+      DIAMOND: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <polygon points="24,18 56,18 68,34 40,66 12,34" fill="rgba(0,240,255,0.09)" stroke="#00f0ff" stroke-width="2.8" stroke-linejoin="round"/>
+          <polyline points="12,34 68,34" stroke="#00f0ff" stroke-width="1.8"/>
+          <polyline points="24,18 30,34 40,66 50,34 56,18" stroke="#b8fbff" stroke-width="1.4" stroke-linejoin="round"/>
+          <line x1="30" y1="34" x2="50" y2="34" stroke="#ffffff" stroke-width="1" opacity="0.8"/>
+        </svg>`,
+      BOLT: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <polygon points="46,10 18,44 38,44 32,70 62,34 42,34" fill="rgba(255,215,0,0.1)" stroke="#ffd100" stroke-width="2.8" stroke-linejoin="round"/>
+          <polyline points="44,16 24,41 40,41 35,63" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+        </svg>`,
+      CHERRY: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <path d="M28 46 C28 30 42 22 48 14 C44 26 52 34 54 46" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M48 14 C56 12 63 17 64 23 C57 24 51 21 48 14 Z" fill="rgba(0,255,136,0.12)" stroke="#00ff88" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="27" cy="54" r="12" fill="rgba(255,0,127,0.12)" stroke="#ff007f" stroke-width="2.8"/>
+          <circle cx="53" cy="56" r="12" fill="rgba(255,0,127,0.12)" stroke="#ff007f" stroke-width="2.8"/>
+          <path d="M22 50 A6 6 0 0 1 28 46" stroke="#ffd1e8" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M48 52 A6 6 0 0 1 54 48" stroke="#ffd1e8" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>`,
+      BAR: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <rect x="10" y="23" width="60" height="34" rx="8" fill="rgba(168,85,247,0.1)" stroke="#a855f7" stroke-width="2.8"/>
+          <rect x="14" y="27" width="52" height="26" rx="5" stroke="#00f0ff" stroke-width="1.2" opacity="0.8"/>
+          <text x="40" y="46" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="18" letter-spacing="2" fill="none" stroke="#ffffff" stroke-width="1.4">BAR</text>
+        </svg>`,
+      ACE: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="rgba(255,77,141,0.1)" stroke="#ff4d8d" stroke-width="2.8">A</text>
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="none" stroke="#ffd6e5" stroke-width="0.7" opacity="0.8">A</text>
+        </svg>`,
+      KING: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="rgba(255,209,0,0.09)" stroke="#ffd100" stroke-width="2.8">K</text>
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="none" stroke="#fff6cc" stroke-width="0.7" opacity="0.8">K</text>
+        </svg>`,
+      QUEEN: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <text x="40" y="57" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="52" fill="rgba(192,132,252,0.1)" stroke="#c084fc" stroke-width="2.8">Q</text>
+          <text x="40" y="57" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="52" fill="none" stroke="#f0dbff" stroke-width="0.7" opacity="0.8">Q</text>
+        </svg>`,
+      JACK: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="rgba(56,189,248,0.1)" stroke="#38bdf8" stroke-width="2.8">J</text>
+          <text x="40" y="59" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="54" fill="none" stroke="#d4f1ff" stroke-width="0.7" opacity="0.8">J</text>
+        </svg>`,
+      WILD: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <polygon points="40,10 68,26 68,54 40,70 12,54 12,26" fill="rgba(0,240,255,0.12)" stroke="#00f0ff" stroke-width="2.8" stroke-linejoin="round"/>
+          <polygon points="40,16 62,29 62,51 40,64 18,51 18,29" stroke="#ffffff" stroke-width="1" opacity="0.65"/>
+          <text x="40" y="45" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="900" font-size="14.5" letter-spacing="1" fill="#ffffff">WILD</text>
+        </svg>`,
+      MYST: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <polygon points="40,10 70,40 40,70 10,40" fill="rgba(0,255,136,0.1)" stroke="#00ff88" stroke-width="2.6" stroke-linejoin="round"/>
+          <path d="M32 31 C32 25 36 22 41 22 C46 22 49 25 49 30 C49 35 44 37 41 40 C40 41 40 43 40 45" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="54" r="2.2" fill="#00ff88" stroke="#ffffff" stroke-width="1"/>
+        </svg>`,
+      WHEEL: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="42" r="25" fill="rgba(255,209,0,0.08)" stroke="#ffd100" stroke-width="2.8"/>
+          <circle cx="40" cy="42" r="14" stroke="#00f0ff" stroke-width="1.6"/>
+          <circle cx="40" cy="42" r="5" fill="#070a12" stroke="#ffffff" stroke-width="1.8"/>
+          <line x1="40" y1="17" x2="40" y2="37" stroke="#ffd100" stroke-width="1.5"/>
+          <line x1="40" y1="47" x2="40" y2="67" stroke="#ffd100" stroke-width="1.5"/>
+          <line x1="15" y1="42" x2="35" y2="42" stroke="#ffd100" stroke-width="1.5"/>
+          <line x1="45" y1="42" x2="65" y2="42" stroke="#ffd100" stroke-width="1.5"/>
+          <polygon points="40,19 35,9 45,9" fill="#ff007f" stroke="#ffffff" stroke-width="1"/>
+        </svg>`,
+      ORB: `
+        <svg class="sym-svg" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="26" fill="rgba(255,0,127,0.14)" stroke="#ff007f" stroke-width="3"/>
+          <circle cx="40" cy="40" r="18" stroke="#ffd100" stroke-width="1.8" stroke-dasharray="6 4"/>
+          <circle cx="40" cy="40" r="9" fill="rgba(255,209,0,0.18)" stroke="#ffffff" stroke-width="1.5"/>
+          <path d="M26 24 A20 20 0 0 1 40 19" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+        </svg>`
+    };
+
     // ==================== AUDIO ENGINE (Web Audio API) ====================
     const AudioEngine = (() => {
       let ctx = null;
@@ -937,19 +1046,19 @@
     const ORB_TRIGGER_COUNT = 4;
 
     const SYMBOLS = [
-      { id: 'SEVEN',   icon: '7️⃣', label: 'NEON 7',  pay: 16,  weight: 5 },
-      { id: 'DIAMOND', icon: '💎', label: 'DIAMOND', pay: 11,  weight: 7 },
-      { id: 'BOLT',    icon: '⚡', label: 'PULSE',   pay: 8,   weight: 9 },
-      { id: 'CHERRY',  icon: '🍒', label: 'CHERRY',  pay: 6,   weight: 11 },
-      { id: 'BAR',     icon: '▰',  label: 'BAR',     pay: 4.5, weight: 13 },
-      { id: 'ACE',     icon: 'A',  label: 'ACE',     pay: 2.5, weight: 17, royal: true },
-      { id: 'KING',    icon: 'K',  label: 'KING',    pay: 2.0, weight: 19, royal: true },
-      { id: 'QUEEN',   icon: 'Q',  label: 'QUEEN',   pay: 1.7, weight: 21, royal: true },
-      { id: 'JACK',    icon: 'J',  label: 'JACK',    pay: 1.4, weight: 22, royal: true },
-      { id: 'WILD',    icon: '💠', label: 'WILD',    pay: 0,   weight: 5 },
-      { id: 'MYST',    icon: '❓', label: 'MYSTERY', pay: 0,   weight: 6 },
-      { id: 'WHEEL',   icon: '🎡', label: 'WHEEL',   pay: 0,   weight: 5 },
-      { id: 'ORB',     icon: '🟣', label: 'ORB',     pay: 0,   weight: 8 }
+      { id: 'SEVEN',   label: 'NEON 7',  pay: 16,  weight: 5 },
+      { id: 'DIAMOND', label: 'DIAMOND', pay: 11,  weight: 7 },
+      { id: 'BOLT',    label: 'PULSE',   pay: 8,   weight: 9 },
+      { id: 'CHERRY',  label: 'CHERRY',  pay: 6,   weight: 11 },
+      { id: 'BAR',     label: 'BAR',     pay: 4.5, weight: 13 },
+      { id: 'ACE',     label: 'ACE',     pay: 2.5, weight: 17 },
+      { id: 'KING',    label: 'KING',    pay: 2.0, weight: 19 },
+      { id: 'QUEEN',   label: 'QUEEN',   pay: 1.7, weight: 21 },
+      { id: 'JACK',    label: 'JACK',    pay: 1.4, weight: 22 },
+      { id: 'WILD',    label: 'WILD',    pay: 0,   weight: 5 },
+      { id: 'MYST',    label: 'MYSTERY', pay: 0,   weight: 6 },
+      { id: 'WHEEL',   label: 'WHEEL',   pay: 0,   weight: 5 },
+      { id: 'ORB',     label: 'ORB',     pay: 0,   weight: 8 }
     ];
 
     const COMBO_COLORS = ['#ffd100', '#00f0ff', '#ff007f', '#00ff88', '#a855f7'];
@@ -972,7 +1081,6 @@
     const fmt = n => '$' + Math.floor(n).toLocaleString();
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    // All 4 Jackpots scale dynamically with Total Bet (baseBet * tier)
     function getJackpots() {
       const bet = totalBet();
       return {
@@ -1012,12 +1120,11 @@
         const p3 = Math.max(1, Math.round(bet * BASE_SCALAR * sym.pay * 1));
         const p4 = Math.max(1, Math.round(bet * BASE_SCALAR * sym.pay * 2));
         const p5 = Math.max(1, Math.round(bet * BASE_SCALAR * sym.pay * 4));
-        const iconClass = sym.royal ? `pt-icon pt-royal ${sym.id}` : 'pt-icon';
 
         const card = document.createElement('div');
         card.className = 'pt-card';
         card.innerHTML = `
-          <div class="${iconClass}">${sym.icon}</div>
+          <div class="pt-icon">${SVG_ICONS[sym.id]}</div>
           <div class="pt-info">
             <div class="pt-name">${sym.label}</div>
             <div class="pt-pays">3x: <span>${fmt(p3)}</span> · 4x: <span>${fmt(p4)}</span><br>5x: <span>${fmt(p5)}</span></div>
@@ -1034,7 +1141,7 @@
       if (e.target === $('paytableModal')) $('paytableModal').classList.remove('open');
     });
 
-    // ==================== SMART PRESS-AND-HOLD BET STEPPER (MAX $1,000 BASE / $10,000 TOTAL) ====================
+    // ==================== SMART PRESS-AND-HOLD BET STEPPER ====================
     function attachHoldStepper(btnEl, direction) {
       let holdTimeout = null;
       let holdInterval = null;
@@ -1154,8 +1261,7 @@
 
     function cellMarkup(sym) {
       const tag = sym.id === 'ORB' ? fmt(sym.orbVal || totalBet() * 2) : sym.label;
-      const iconCls = sym.royal ? 'sym-icon royal-icon' : 'sym-icon';
-      return `<div class="cell-inner"><div class="${iconCls}">${sym.icon}</div><div class="sym-tag">${tag}</div></div>`;
+      return `<div class="cell-inner"><div class="sym-svg-wrap">${SVG_ICONS[sym.id]}</div><div class="sym-tag">${tag}</div></div>`;
     }
 
     function createCellElement(sym, id = '', extraClass = '') {
@@ -1371,7 +1477,7 @@
         $('winBanner').textContent = 'TRY AGAIN // CHASE THE NEON VAULT';
       }
 
-      // 4. Charge Vault & Check Feature Triggers (4+ Orbs for Hold & Spin)
+      // 4. Charge Vault & Check Feature Triggers
       let wheelCount = 0, orbCount = 0;
       for (let c = 0; c < 5; c++) {
         for (let r = 0; r < 3; r++) {
@@ -1578,7 +1684,6 @@
       hsBoard = Array(15).fill(0);
 
       if (fromBoard) {
-        // Carry over the actual landed Orbs from the 5x3 reel grid
         for (let r = 0; r < 3; r++) {
           for (let c = 0; c < 5; c++) {
             const sym = state.grid[c][r];
@@ -1588,7 +1693,6 @@
           }
         }
       } else {
-        // Feature tester seed (4 orbs)
         for (let i = 0; i < ORB_TRIGGER_COUNT; i++) {
           let idx;
           do { idx = Math.floor(Math.random() * 15); } while (hsBoard[idx] > 0);
@@ -1607,7 +1711,7 @@
       hsBoard.forEach(val => {
         const d = document.createElement('div');
         d.className = 'hs-cell' + (val > 0 ? ' filled' : '');
-        d.innerHTML = val > 0 ? `🟣<br>${fmt(val)}` : '·';
+        d.innerHTML = val > 0 ? `<div class="hs-orb-icon">${SVG_ICONS.ORB}</div><div>${fmt(val)}</div>` : '·';
         grid.appendChild(d);
       });
       $('holdSpinBtn').textContent = `RESPIN (${hsRespins} LEFT)`;
