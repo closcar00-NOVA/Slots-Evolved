@@ -321,7 +321,7 @@
       transition: filter 0.15s;
     }
 
-    /* Neon Royal Typography (10, J, Q, K, A) */
+    /* Neon Royal Typography (J, Q, K, A) */
     .sym-icon.royal-icon {
       font-size: 3.7rem;
       font-weight: 900;
@@ -332,7 +332,6 @@
     .cell[data-sym="KING"] .royal-icon  { color: #ffd100; text-shadow: 0 0 14px rgba(255, 209, 0, 0.5); }
     .cell[data-sym="QUEEN"] .royal-icon { color: #c084fc; text-shadow: 0 0 14px rgba(192, 132, 252, 0.5); }
     .cell[data-sym="JACK"] .royal-icon  { color: #38bdf8; text-shadow: 0 0 14px rgba(56, 189, 248, 0.5); }
-    .cell[data-sym="TEN"] .royal-icon   { color: #34d399; text-shadow: 0 0 14px rgba(52, 211, 153, 0.45); }
 
     .sym-tag {
       font-size: 0.62rem;
@@ -782,23 +781,22 @@
       };
     })();
 
-    // ==================== BALANCED CASINO SYMBOLS (~95% RTP) ====================
+    // ==================== ENTERTAINMENT-BALANCED SYMBOLS ====================
     const SYMBOLS = [
-      // Premium Symbols
-      { id: 'SEVEN',   icon: '7️⃣', label: 'NEON 7',  pay: 18,  weight: 4 },
-      { id: 'DIAMOND', icon: '💎', label: 'DIAMOND', pay: 12,  weight: 6 },
-      { id: 'BOLT',    icon: '⚡', label: 'PULSE',   pay: 9,   weight: 8 },
-      { id: 'CHERRY',  icon: '🍒', label: 'CHERRY',  pay: 7,   weight: 10 },
-      { id: 'BAR',     icon: '▰',  label: 'BAR',     pay: 5,   weight: 12 },
-      // Low-Pay Royal Symbols (10, J, Q, K, A)
-      { id: 'ACE',     icon: 'A',  label: 'ACE',     pay: 2.5, weight: 16, royal: true },
-      { id: 'KING',    icon: 'K',  label: 'KING',    pay: 2.0, weight: 18, royal: true },
-      { id: 'QUEEN',   icon: 'Q',  label: 'QUEEN',   pay: 1.8, weight: 20, royal: true },
-      { id: 'JACK',    icon: 'J',  label: 'JACK',    pay: 1.5, weight: 22, royal: true },
-      { id: 'TEN',     icon: '10', label: 'TEN',     pay: 1.2, weight: 24, royal: true },
-      // Special Feature Symbols (Toned-down Wild weight)
-      { id: 'WILD',    icon: '💠', label: 'WILD',    pay: 0,   weight: 3 },
-      { id: 'MYST',    icon: '❓', label: 'MYSTERY', pay: 0,   weight: 5 },
+      // Premium Symbols (Slightly higher frequency for exciting Big/Mega wins)
+      { id: 'SEVEN',   icon: '7️⃣', label: 'NEON 7',  pay: 16,  weight: 5 },
+      { id: 'DIAMOND', icon: '💎', label: 'DIAMOND', pay: 11,  weight: 7 },
+      { id: 'BOLT',    icon: '⚡', label: 'PULSE',   pay: 8,   weight: 9 },
+      { id: 'CHERRY',  icon: '🍒', label: 'CHERRY',  pay: 6,   weight: 11 },
+      { id: 'BAR',     icon: '▰',  label: 'BAR',     pay: 4.5, weight: 13 },
+      // 4 Low-Pay Royals (J, Q, K, A) for frequent small-to-medium hits
+      { id: 'ACE',     icon: 'A',  label: 'ACE',     pay: 2.5, weight: 17, royal: true },
+      { id: 'KING',    icon: 'K',  label: 'KING',    pay: 2.0, weight: 19, royal: true },
+      { id: 'QUEEN',   icon: 'Q',  label: 'QUEEN',   pay: 1.7, weight: 21, royal: true },
+      { id: 'JACK',    icon: 'J',  label: 'JACK',    pay: 1.4, weight: 22, royal: true },
+      // Special Feature Symbols
+      { id: 'WILD',    icon: '💠', label: 'WILD',    pay: 0,   weight: 5 },
+      { id: 'MYST',    icon: '❓', label: 'MYSTERY', pay: 0,   weight: 6 },
       { id: 'WHEEL',   icon: '🎡', label: 'WHEEL',   pay: 0,   weight: 5 },
       { id: 'ORB',     icon: '🟣', label: 'ORB',     pay: 0,   weight: 7 }
     ];
@@ -1046,7 +1044,7 @@
 
       await Promise.all(spinPromises);
 
-      // 1. Mystery Symbol Reveal (can reveal any paying symbol)
+      // 1. Mystery Symbol Reveal
       const mystCells = [];
       for (let c = 0; c < 5; c++)
         for (let r = 0; r < 3; r++)
@@ -1064,14 +1062,16 @@
         AudioEngine.tick();
       }
 
-      // 2. Expanding Wild (Center Reel 3 ONLY — save originals so they reset after cascade)
-      let expandedCenterOriginals = null;
-      if (state.grid[2].some(s => s.id === 'WILD')) {
-        expandedCenterOriginals = state.grid[2].map(s => ({ ...s }));
-        const wildSym = SYMBOLS.find(s => s.id === 'WILD');
-        for (let r = 0; r < 3; r++) {
-          state.grid[2][r] = { ...wildSym };
-          renderCell($(`cell-2-${r}`), state.grid[2][r], 'wild-expanded');
+      // 2. Expanding Wilds (Reels 2 & 3 — save originals so unconsumed Wilds reset on cascade)
+      const expandedOriginals = {};
+      const wildSym = SYMBOLS.find(s => s.id === 'WILD');
+      for (const c of [1, 2]) {
+        if (state.grid[c].some(s => s.id === 'WILD')) {
+          expandedOriginals[c] = state.grid[c].map(s => ({ ...s }));
+          for (let r = 0; r < 3; r++) {
+            state.grid[c][r] = { ...wildSym };
+            renderCell($(`cell-${c}-${r}`), state.grid[c][r], 'wild-expanded');
+          }
         }
       }
 
@@ -1108,15 +1108,16 @@
           renderCell($(`cell-${c}-${r}`), fresh);
         });
 
-        // Step 4: Reset any remaining unconsumed expanded Wilds on Reel 3 before next cascade
-        if (expandedCenterOriginals) {
+        // Reset any unconsumed expanded Wilds before next cascade
+        for (const colKey of Object.keys(expandedOriginals)) {
+          const c = Number(colKey);
           for (let r = 0; r < 3; r++) {
-            if (!winCoordSet.has(`2,${r}`)) {
-              state.grid[2][r] = expandedCenterOriginals[r];
-              renderCell($(`cell-2-${r}`), state.grid[2][r]);
+            if (!winCoordSet.has(`${c},${r}`)) {
+              state.grid[c][r] = expandedOriginals[c][r];
+              renderCell($(`cell-${c}-${r}`), state.grid[c][r]);
             }
           }
-          expandedCenterOriginals = null;
+          delete expandedOriginals[colKey];
         }
 
         cascadeMult = Math.min(5, cascadeMult + 1);
@@ -1188,8 +1189,8 @@
         if (streak >= 3) {
           const ways = colsMatched.reduce((acc, col) => acc * col.rows.length, 1);
           const streakMult = streak === 5 ? 4 : streak === 4 ? 2 : 1;
-          // Scaled down base payout scalar (0.035) for realistic casino RTP
-          winAmt += (bet * 0.035) * sym.pay * ways * streakMult * mult;
+          // Entertainment-balanced payout scalar (0.06)
+          winAmt += (bet * 0.06) * sym.pay * ways * streakMult * mult;
           colsMatched.forEach(col => col.rows.forEach(r => winSet.add(`${col.c},${r}`)));
 
           let paths = [[]];
