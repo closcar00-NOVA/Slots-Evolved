@@ -72,14 +72,24 @@
     }
 
     .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
       font-weight: 900;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       letter-spacing: 3px;
-      color: var(--cyan);
-      text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+      line-height: 1;
     }
 
-    .brand span { color: var(--magenta); text-shadow: 0 0 12px rgba(255, 0, 127, 0.5); }
+    .brand-neon {
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.55);
+    }
+
+    .brand-pulse {
+      color: var(--magenta);
+      text-shadow: 0 0 12px rgba(255, 0, 127, 0.55);
+    }
 
     .top-actions {
       display: flex;
@@ -205,15 +215,28 @@
       white-space: nowrap;
     }
 
-    /* 5x3 Traditional Spinning Reel Frame (Tight Padding) */
+    /* 5x3 Traditional Spinning Reel Frame (3x Thicker & Brighter Border) */
     .reel-frame {
       background: #050810;
-      border: 1px solid rgba(0, 240, 255, 0.28);
+      border: 3px solid rgba(0, 245, 255, 0.8);
       border-radius: 12px;
       padding: 5px;
       position: relative;
       overflow: hidden;
-      box-shadow: inset 0 14px 20px -10px rgba(0, 0, 0, 0.9), inset 0 -14px 20px -10px rgba(0, 0, 0, 0.9);
+      box-shadow:
+        0 0 18px rgba(0, 245, 255, 0.25),
+        inset 0 14px 20px -10px rgba(0, 0, 0, 0.9),
+        inset 0 -14px 20px -10px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Subtle Winning Combo Lines Overlay */
+    .payline-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 6;
     }
 
     .reel-grid {
@@ -255,7 +278,7 @@
       filter: blur(1.4px);
     }
 
-    /* Tight-Padded Symbol Tile */
+    /* Tight-Padded Symbol Tile with Crisp White Separation Border */
     .cell {
       height: var(--cell-h);
       padding: 2px;
@@ -266,7 +289,8 @@
       width: 100%;
       height: 100%;
       background: var(--panel-light);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
       border-radius: 7px;
       display: flex;
       flex-direction: column;
@@ -586,7 +610,10 @@
   <div class="cabinet" id="cabinet">
     <!-- Top Bar -->
     <div class="top-bar">
-      <div class="brand">NEON<span>PULSE</span></div>
+      <div class="brand">
+        <span class="brand-neon">NEON</span>
+        <span class="brand-pulse">PULSE</span>
+      </div>
       <div class="top-actions">
         <button class="pill-btn active" id="btnSound">SOUND: ON</button>
         <button class="pill-btn" id="btnTurbo">TURBO: OFF</button>
@@ -625,7 +652,8 @@
     </div>
 
     <!-- 5x3 Traditional Spinning Reel Grid -->
-    <div class="reel-frame">
+    <div class="reel-frame" id="reelFrame">
+      <svg class="payline-svg" id="paylineSvg"></svg>
       <div class="reel-grid" id="reelGrid"></div>
     </div>
 
@@ -753,6 +781,8 @@
       { id: 'ORB', icon: '🟣', label: 'ORB', pay: 0, weight: 9 }
     ];
 
+    const COMBO_COLORS = ['#ffd100', '#00f0ff', '#ff007f', '#00ff88', '#a855f7'];
+
     const state = {
       bankroll: Number(localStorage.getItem('np_bankroll')) || 5000,
       baseBet: 10,
@@ -785,6 +815,70 @@
       $('vaultFill').style.width = Math.min(100, state.vault) + '%';
       $('vaultPct').textContent = Math.min(100, Math.floor(state.vault)) + '%';
       saveState();
+    }
+
+    // ==================== SUBTLE WINNING COMBO LINES (SVG) ====================
+    function clearPaylines() {
+      $('paylineSvg').innerHTML = '';
+    }
+
+    function drawPaylines(paths) {
+      const svg = $('paylineSvg');
+      svg.innerHTML = '';
+      if (!paths || paths.length === 0) return;
+
+      const frameRect = $('reelFrame').getBoundingClientRect();
+      const ns = 'http://www.w3.org/2000/svg';
+
+      // Subtle glow filter
+      const defs = document.createElementNS(ns, 'defs');
+      defs.innerHTML = `
+        <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>`;
+      svg.appendChild(defs);
+
+      const total = paths.length;
+      paths.forEach((pathObj, idx) => {
+        const color = COMBO_COLORS[idx % COMBO_COLORS.length];
+        // Slight vertical offset so multiple combos remain visually distinct
+        const offsetY = total > 1 ? (idx - (total - 1) / 2) * 3.5 : 0;
+
+        const pts = pathObj.coords.map(([c, r]) => {
+          const el = $(`cell-${c}-${r}`);
+          const rect = el.getBoundingClientRect();
+          return {
+            x: rect.left - frameRect.left + rect.width / 2,
+            y: rect.top - frameRect.top + rect.height / 2 + offsetY
+          };
+        });
+
+        const poly = document.createElementNS(ns, 'polyline');
+        poly.setAttribute('points', pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+        poly.setAttribute('fill', 'none');
+        poly.setAttribute('stroke', color);
+        poly.setAttribute('stroke-width', '2.5');
+        poly.setAttribute('stroke-opacity', '0.58');
+        poly.setAttribute('stroke-linecap', 'round');
+        poly.setAttribute('stroke-linejoin', 'round');
+        poly.setAttribute('filter', 'url(#lineGlow)');
+        svg.appendChild(poly);
+
+        // Subtle anchor dots at each symbol center
+        pts.forEach(p => {
+          const dot = document.createElementNS(ns, 'circle');
+          dot.setAttribute('cx', p.x.toFixed(1));
+          dot.setAttribute('cy', p.y.toFixed(1));
+          dot.setAttribute('r', '3.5');
+          dot.setAttribute('fill', color);
+          dot.setAttribute('fill-opacity', '0.72');
+          svg.appendChild(dot);
+        });
+      });
     }
 
     // ==================== REEL RENDERING & VERTICAL SPIN ENGINE ====================
@@ -841,7 +935,6 @@
       }
     }
 
-    // Animates a single reel strip vertically from current symbols down to target symbols
     function spinColumn(c, targetSyms, durationMs, fillerCount, isTease) {
       return new Promise(resolve => {
         const colEl = $(`col-${c}`);
@@ -849,7 +942,6 @@
         const cellH = colEl.clientHeight / 3;
         const currentSyms = state.grid[c];
 
-        // Build vertical strip: [Target 3] + [Random Filler] + [Current 3]
         const fullList = [
           ...targetSyms,
           ...Array.from({ length: fillerCount }, () => pickSymbol()),
@@ -860,12 +952,10 @@
         strip.innerHTML = '';
         fullList.forEach(sym => strip.appendChild(createCellElement(sym)));
 
-        // Start positioned at the bottom so currentSyms remain seamlessly in view
         const startOffset = (fullList.length - 3) * cellH;
         strip.style.transform = `translateY(-${startOffset}px)`;
         strip.classList.add('blur-motion');
 
-        // Force browser reflow
         void strip.offsetHeight;
 
         if (isTease) {
@@ -873,7 +963,6 @@
           AudioEngine.anticipation();
         }
 
-        // Scroll downward to translateY(0) with a classic mechanical overshoot settle
         strip.style.transition = `transform ${durationMs}ms cubic-bezier(0.14, 0.85, 0.24, 1.03)`;
         strip.style.transform = 'translateY(0px)';
 
@@ -882,7 +971,6 @@
           colEl.classList.remove('anticipate');
           AudioEngine.slam();
 
-          // Replace strip with only the 3 final cells for clean cascades & highlights
           strip.style.transition = 'none';
           strip.style.transform = 'translateY(0px)';
           strip.innerHTML = '';
@@ -907,6 +995,7 @@
         return;
       }
 
+      clearPaylines();
       state.spinning = true;
       $('spinBtn').disabled = true;
       $('winBanner').textContent = 'SPINNING...';
@@ -916,10 +1005,8 @@
       state.jackpots.major += bet * 0.04;
       updateUI();
 
-      // Generate target grid
       const nextGrid = Array.from({ length: 5 }, () => Array.from({ length: 3 }, () => pickSymbol()));
 
-      // Launch all 5 reels simultaneously with staggered stop durations
       let scatterSoFar = 0;
       const spinPromises = [];
       for (let c = 0; c < 5; c++) {
@@ -963,24 +1050,29 @@
         }
       }
 
-      // 3. Evaluate 243-Ways + Cascading Wins
+      // 3. Evaluate 243-Ways + Cascading Wins + Combo Lines
       let cascadeMult = 1;
       let totalSpinWin = 0;
+      let totalCombos = 0;
 
       while (true) {
-        const { winAmt, winCoords } = evaluateWays(bet, cascadeMult);
+        const { winAmt, winCoords, winPaths } = evaluateWays(bet, cascadeMult);
         if (winAmt <= 0) break;
 
         totalSpinWin += winAmt;
+        totalCombos += winPaths.length;
         $('cascadeBadge').textContent = `CASCADE ${cascadeMult}X`;
         winCoords.forEach(([c, r]) => $(`cell-${c}-${r}`).classList.add('win'));
+        drawPaylines(winPaths);
+
         AudioEngine.win(winAmt >= bet * 10);
         if (winAmt >= bet * 10) {
           $('cabinet').classList.add('shake');
           setTimeout(() => $('cabinet').classList.remove('shake'), 280);
         }
 
-        await sleep(state.turbo ? 300 : 620);
+        await sleep(state.turbo ? 380 : 780);
+        clearPaylines();
 
         winCoords.forEach(([c, r]) => {
           const fresh = pickSymbol();
@@ -990,12 +1082,13 @@
         cascadeMult = Math.min(5, cascadeMult + 1);
       }
 
-      // Credit Win & Announce Tier
+      // Credit Win & Announce Tier + Combo Count
       if (totalSpinWin > 0) {
         state.bankroll += totalSpinWin;
         const ratio = totalSpinWin / bet;
         const tierLabel = ratio >= 25 ? 'EPIC WIN!!' : ratio >= 10 ? 'MEGA WIN!' : ratio >= 5 ? 'BIG WIN!' : 'WIN';
-        $('winBanner').textContent = `${tierLabel} ${fmt(totalSpinWin)}`;
+        const comboText = totalCombos === 1 ? '1 COMBO' : `${totalCombos} COMBOS`;
+        $('winBanner').textContent = `${tierLabel} ${fmt(totalSpinWin)}  (${comboText})`;
       } else {
         $('winBanner').textContent = 'TRY AGAIN // CHASE THE NEON VAULT';
       }
@@ -1036,6 +1129,7 @@
     function evaluateWays(bet, mult) {
       let winAmt = 0;
       const winSet = new Set();
+      const winPaths = [];
       const paySyms = SYMBOLS.filter(s => s.pay > 0);
 
       for (const sym of paySyms) {
@@ -1056,11 +1150,24 @@
           const streakMult = streak === 5 ? 4 : streak === 4 ? 2 : 1;
           winAmt += (bet * 0.15) * sym.pay * ways * streakMult * mult;
           colsMatched.forEach(col => col.rows.forEach(r => winSet.add(`${col.c},${r}`)));
+
+          // Build each distinct winning combo path across matched columns
+          let paths = [[]];
+          for (const col of colsMatched) {
+            const next = [];
+            for (const p of paths) {
+              for (const r of col.rows) {
+                next.push([...p, [col.c, r]]);
+              }
+            }
+            paths = next;
+          }
+          paths.forEach(coords => winPaths.push({ sym: sym.id, coords }));
         }
       }
 
       const winCoords = Array.from(winSet).map(s => s.split(',').map(Number));
-      return { winAmt: Math.floor(winAmt), winCoords };
+      return { winAmt: Math.floor(winAmt), winCoords, winPaths };
     }
 
     // ==================== 3-TIER CONCENTRIC BONUS WHEEL ====================
