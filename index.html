@@ -789,7 +789,7 @@
       </div>
 
       <div class="stat-box">
-        <div class="stat-label">TOTAL BET (HOLD ±)</div>
+        <div class="stat-label">TOTAL BET (MAX $10K)</div>
         <div class="bet-controls">
           <button class="step-btn" id="betDown">−</button>
           <div class="stat-val" id="betVal">$10</div>
@@ -813,7 +813,7 @@
         <button class="pill-btn" id="testWheel">3-TIER WHEEL</button>
         <button class="pill-btn" id="testHold">HOLD & SPIN</button>
         <button class="pill-btn" id="testPick">PICK-ME VAULT</button>
-        <button class="pill-btn" id="testRefill">+$5,000</button>
+        <button class="pill-btn" id="testRefill">+$25,000</button>
       </div>
     </div>
   </div>
@@ -848,7 +848,7 @@
         </div>
         <div class="pt-feat">
           <strong>🟣 CASH LINK (HOLD & SPIN)</strong>
-          Land 6+ Neon Orbs to lock them for 3 respins. Every new orb resets respins to 3; filling all 15 awards the Grand Jackpot.
+          Land 4+ Neon Orbs anywhere to lock them for 3 respins. Every new orb resets respins to 3; filling all 15 awards the Grand Jackpot.
         </div>
       </div>
 
@@ -934,6 +934,7 @@
 
     // ==================== ENTERTAINMENT-BALANCED SYMBOLS ====================
     const BASE_SCALAR = 0.06;
+    const ORB_TRIGGER_COUNT = 4;
 
     const SYMBOLS = [
       { id: 'SEVEN',   icon: '7️⃣', label: 'NEON 7',  pay: 16,  weight: 5 },
@@ -948,7 +949,7 @@
       { id: 'WILD',    icon: '💠', label: 'WILD',    pay: 0,   weight: 5 },
       { id: 'MYST',    icon: '❓', label: 'MYSTERY', pay: 0,   weight: 6 },
       { id: 'WHEEL',   icon: '🎡', label: 'WHEEL',   pay: 0,   weight: 5 },
-      { id: 'ORB',     icon: '🟣', label: 'ORB',     pay: 0,   weight: 7 }
+      { id: 'ORB',     icon: '🟣', label: 'ORB',     pay: 0,   weight: 8 }
     ];
 
     const COMBO_COLORS = ['#ffd100', '#00f0ff', '#ff007f', '#00ff88', '#a855f7'];
@@ -1033,16 +1034,22 @@
       if (e.target === $('paytableModal')) $('paytableModal').classList.remove('open');
     });
 
-    // ==================== PRESS-AND-HOLD ACCELERATING BET STEPPER ====================
-    function attachHoldStepper(btnEl, delta) {
+    // ==================== SMART PRESS-AND-HOLD BET STEPPER (MAX $1,000 BASE / $10,000 TOTAL) ====================
+    function attachHoldStepper(btnEl, direction) {
       let holdTimeout = null;
       let holdInterval = null;
-      let ticks = 0;
 
       const step = () => {
-        const next = Math.max(10, Math.min(200, state.baseBet + delta));
-        if (next !== state.baseBet) {
-          state.baseBet = next;
+        let b = state.baseBet;
+        if (direction > 0) {
+          const inc = b < 100 ? 10 : b < 500 ? 50 : 100;
+          b = Math.min(1000, b + inc);
+        } else {
+          const dec = b > 500 ? 100 : b > 100 ? 50 : 10;
+          b = Math.max(10, b - dec);
+        }
+        if (b !== state.baseBet) {
+          state.baseBet = b;
           updateUI();
           AudioEngine.tick();
         }
@@ -1053,28 +1060,21 @@
         clearInterval(holdInterval);
         holdTimeout = null;
         holdInterval = null;
-        ticks = 0;
       };
 
       btnEl.addEventListener('pointerdown', e => {
         e.preventDefault();
         step();
-        ticks = 0;
         holdTimeout = setTimeout(() => {
-          holdInterval = setInterval(() => {
-            ticks++;
-            // Accelerate after 6 ticks by stepping twice as fast
-            step();
-            if (ticks > 6) step();
-          }, 85);
-        }, 300);
+          holdInterval = setInterval(step, 75);
+        }, 280);
       });
 
       ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btnEl.addEventListener(ev, stop));
     }
 
-    attachHoldStepper($('betUp'), 10);
-    attachHoldStepper($('betDown'), -10);
+    attachHoldStepper($('betUp'), 1);
+    attachHoldStepper($('betDown'), -1);
 
     // ==================== SUBTLE WINNING COMBO LINES (SVG) ====================
     function clearPaylines() {
@@ -1248,7 +1248,7 @@
       if (state.spinning) return;
       const bet = totalBet();
       if (state.bankroll < bet) {
-        $('winBanner').textContent = 'INSUFFICIENT BANKROLL — USE +$5,000 REFILL';
+        $('winBanner').textContent = 'INSUFFICIENT BANKROLL — USE +$25,000 REFILL';
         state.auto = false;
         $('btnAuto').classList.remove('active');
         $('btnAuto').textContent = 'AUTO: OFF';
@@ -1301,7 +1301,7 @@
         AudioEngine.tick();
       }
 
-      // 2. Expanding Wilds (Reels 2 & 3 — save originals so unconsumed Wilds reset on cascade)
+      // 2. Expanding Wilds (Reels 2 & 3)
       const expandedOriginals = {};
       const wildSym = SYMBOLS.find(s => s.id === 'WILD');
       for (const c of [1, 2]) {
@@ -1371,7 +1371,7 @@
         $('winBanner').textContent = 'TRY AGAIN // CHASE THE NEON VAULT';
       }
 
-      // 4. Charge Vault (Rebalanced: ~3x slower so it feels earned) & Check Feature Triggers
+      // 4. Charge Vault & Check Feature Triggers (4+ Orbs for Hold & Spin)
       let wheelCount = 0, orbCount = 0;
       for (let c = 0; c < 5; c++) {
         for (let r = 0; r < 3; r++) {
@@ -1386,9 +1386,9 @@
       if (wheelCount >= 3) {
         await sleep(400);
         openWheelModal();
-      } else if (orbCount >= 6) {
+      } else if (orbCount >= ORB_TRIGGER_COUNT) {
         await sleep(400);
-        openHoldModal();
+        openHoldModal(true);
       } else if (state.vault >= 100) {
         state.vault = 0;
         updateUI();
@@ -1573,14 +1573,30 @@
     let hsBoard = [];
     let hsRespins = 3;
 
-    function openHoldModal() {
+    function openHoldModal(fromBoard = false) {
       hsRespins = 3;
       hsBoard = Array(15).fill(0);
-      for (let i = 0; i < 6; i++) {
-        let idx;
-        do { idx = Math.floor(Math.random() * 15); } while (hsBoard[idx] > 0);
-        hsBoard[idx] = totalBet() * [1, 2, 3, 5][Math.floor(Math.random() * 4)];
+
+      if (fromBoard) {
+        // Carry over the actual landed Orbs from the 5x3 reel grid
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 5; c++) {
+            const sym = state.grid[c][r];
+            if (sym && sym.id === 'ORB') {
+              hsBoard[r * 5 + c] = sym.orbVal || totalBet() * 2;
+            }
+          }
+        }
+      } else {
+        // Feature tester seed (4 orbs)
+        for (let i = 0; i < ORB_TRIGGER_COUNT; i++) {
+          let idx;
+          do { idx = Math.floor(Math.random() * 15); } while (hsBoard[idx] > 0);
+          hsBoard[idx] = totalBet() * [1, 2, 3, 5][Math.floor(Math.random() * 4)];
+        }
       }
+
+      $('holdStatus').textContent = '3 Respins Left — Fill all 15 orbs for the GRAND JACKPOT!';
       renderHoldGrid();
       $('holdModal').classList.add('open');
     }
@@ -1715,9 +1731,9 @@
 
     // Feature Tester Buttons
     $('testWheel').addEventListener('click', openWheelModal);
-    $('testHold').addEventListener('click', openHoldModal);
+    $('testHold').addEventListener('click', () => openHoldModal(false));
     $('testPick').addEventListener('click', openPickModal);
-    $('testRefill').addEventListener('click', () => { state.bankroll += 5000; updateUI(); });
+    $('testRefill').addEventListener('click', () => { state.bankroll += 25000; updateUI(); });
 
     // Init
     buildGridDOM();
